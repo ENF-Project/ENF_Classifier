@@ -46,9 +46,39 @@ end
 %   ======================
 %   Find proper threshold
 %   Repeat at each harmonic
-range1 = [(f_n -1):.001:(f_n +1)];
-range2 = [(2*f_n -2):.001:(2*f_n +2)];
-range3 = [(3*f_n -3):.001:(3*f_n +3)];
-range4 = [(4*f_n -4):.001:(4*f_n +4)];
-range5 = [(5*f_n -5):.001:(5*f_n +5)];
-range6 = [(6*f_n -6):.001:(6*f_n +6)];
+%   Used Map containers to avoid issues with different sizes
+N_WINDOW = 20000;
+N_OVERLAP = N_WINDOW/2;
+STEP_SIZE = .001
+N_BIN = 500
+LARGE_NUMBER = 1000000
+
+% REMOVE Maps when not used later on
+ranges = containers.Map('KeyType','int32','ValueType','any');
+f = containers.Map('KeyType','int32','ValueType','any');
+p = containers.Map('KeyType','int32','ValueType','any');
+p_db = containers.Map('KeyType','int32','ValueType','any');
+h = containers.Map('KeyType','int32','ValueType','any');
+
+
+
+
+for i=1:6
+    ranges(i) = [(i*f_n - i):STEP_SIZE:(i*f_n + i)];
+    [~,f(i),t,p(i)] = spectrogram(signal,N_WINDOW,N_OVERLAP,ranges(i),Fs);
+    p_temp = p(i);  %   Temporary variable to index into a list element we've indexed into
+    p_db(i) = 10*log10(p_temp(logical(f(i)),logical(t)));
+    p_db_temp = p_db(i);    %   Temporary variable to index into a list element we've indexed into
+    p_db(i) = p_db_temp(:);
+    h(i) = histfit(p_db(i),N_BIN, 'kernel');
+    h_temp = h(i);
+    x = h_temp(2).XData;
+    y = h_temp(2).YData;
+    y_inverse = LARGE_NUMBER - y;
+    [pks,locs] = findpeaks(y_inverse,x);
+    if ~isempty(locs)
+        min_tresh(i) = locs(1)
+    else
+        min_tresh(i) = NaN;
+    end
+end
