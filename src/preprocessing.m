@@ -1,5 +1,6 @@
 function [enf_signal, grid_letter] = preprocessing(recording)
 
+grid_letter = recording(15);
 [signal, Fs]= audioread(recording);
 [~,~,fundfreq,~,~] = toi(signal);
 f_0 = fundfreq(2)*Fs;
@@ -32,8 +33,6 @@ else
 end
 
 %   ==========
-
-
 %   Determine highest powered curve
 highest_powered_curve = 1;
 
@@ -49,20 +48,19 @@ end
 %   Used Map containers to avoid issues with different sizes
 N_WINDOW = 20000;
 N_OVERLAP = N_WINDOW/2;
-STEP_SIZE = .001
-N_BIN = 500
-LARGE_NUMBER = 1000000
+STEP_SIZE = .001;
+N_BIN = 500;
+LARGE_NUMBER = 1000000;
 
-% REMOVE Maps when not used later on
+% TODO: REMOVE unused MAPs
 ranges = containers.Map('KeyType','int32','ValueType','any');
 f = containers.Map('KeyType','int32','ValueType','any');
 p = containers.Map('KeyType','int32','ValueType','any');
 p_db = containers.Map('KeyType','int32','ValueType','any');
 h = containers.Map('KeyType','int32','ValueType','any');
+m = containers.Map('KeyType','int32','ValueType','any');
 
-
-
-
+%   Compute a min_thresh for each harmonic
 for i=1:6
     ranges(i) = [(i*f_n - i):STEP_SIZE:(i*f_n + i)];
     [~,f(i),t,p(i)] = spectrogram(signal,N_WINDOW,N_OVERLAP,ranges(i),Fs);
@@ -77,8 +75,101 @@ for i=1:6
     y_inverse = LARGE_NUMBER - y;
     [pks,locs] = findpeaks(y_inverse,x);
     if ~isempty(locs)
-        min_tresh(i) = locs(1)
+        min_thresh(i) = locs(1);
     else
-        min_tresh(i) = NaN;
+        min_thresh(i) = NaN;
     end
+    
+    %   Now find curves at each harmonic by removing the noise through recomputation of the spectrogram (thresholding)
+    [~,f(i),t,p(i)] = spectrogram(signal,N_WINDOW,N_OVERLAP,ranges(i),Fs,'MinThreshold',min_thresh(i));
+    [m(i),~] = medfreq(p_temp(logical(f(i)),logical(t)),f(i)); %take median frequency over that range
+    
+end
+
+if (highest_powered_curve == 1)
+    range_new = ranges(1);
+    min_thresh_new = min_thresh(1);
+    combined = m(1);
+elseif (highest_powered_curve == 2)
+    range_new = ranges(2);
+    min_thresh_new = min_thresh(2);
+    combined = m(2)/2;
+elseif (highest_powered_curve == 3)
+    range_new = ranges(3);
+    min_thresh_new = min_thresh(3);
+    combined = m(3)/3;
+elseif (highest_powered_curve == 4)
+    range_new = ranges(4);
+    min_thresh_new = min_thresh(4);
+    combined = m(4)/4;
+elseif (highest_powered_curve == 5)
+    range_new = ranges(5);
+    min_thresh_new = min_thresh(5);
+    combined = m(5)/5;
+else
+    range_new = ranges(6);
+    min_thresh_new = min_thresh(6);
+    combined = m(6)/6;
+end
+
+decrement_min_thresh = 1;
+while (~isempty(find(isnan(combined))))
+    %   NEED TO REFACTOR THIS
+    if(length(find(isnan(combined)))==1 && isnan(combined(length(combined))))
+        break;
+    end
+    position = 1;
+    %while position < length(combined)
+    while 1
+        start_point = 0;
+        end_point = 0;
+
+        %   Determine start position of empty part
+        for i=position:length(combined)
+            if isnan(combined(i))
+                start_point = i;
+                break;
+            end
+        end
+
+        %   If went through entire curve and cannot reduce more then break
+        if (i ==length(combined))
+           break;
+        end
+
+        %   Determine end position of empty part
+        while isnan(combined(i)) && i~=length(combined)
+            end_point = i;
+            i=i+1;
+        end
+        position = i;
+
+        %   Add extra for coninuity
+        if(end_point ~= length(combined))
+           end_point = end_point +1;
+        end
+        if(start_point ~= 1)
+            start_point = start_point -1;
+        end
+        %try to get the missing portion of the curve with a new threshold
+
+        [~,f_subset,t_subset,p_subset] = spectrogram(signal,20000,10000,range_new,sample_rate, 'MinThreshold',min_thresh_new - decrement_min_thresh );
+        [m_subset,pm_subset] = medfreq(p_subset(logical(f_subset),logical(t_subset)),f_subset); %take median frequency over that range
+        m_subset = m_subset((start_point):(end_point));
+        
+        %lenght_m_sub =length(m_subset)
+        %length_comb = length(combined)
+        %   Combine original with extra curve parts obtained from more
+        %   lenient threshold
+        for j=1:length(combined)
+           if(j>= (start_point) && j<(end_point))
+               combined(j) = m_subset(j-(start_point-1))/output_curve;
+           end
+        end
+    end
+    %   Decrement further the treshold if necessary
+    decrement_min_thresh = decrement_min_thresh+1;
+end
+enf_signal = combined;
+
 end
