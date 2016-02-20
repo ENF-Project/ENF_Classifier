@@ -1,4 +1,4 @@
-function [enf_signal, grid_letter] = preprocessing(recording)
+function [enf_signal, grid_number] = preprocessing(recording)
 
 grid_letter = recording(15);
 [signal, Fs]= audioread(recording);
@@ -170,7 +170,9 @@ while (~isempty(find(isnan(combined))))
     %   Decrement further the treshold if necessary
     decrement_min_thresh = decrement_min_thresh+1;
 end
-enf_signal = struct('time',t, 'signal', combined);
+enf_signal = struct('time',t, 'values', combined);
 %enf_signal = combined;
 
+Alphabet = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'
+[~, grid_number] = find(Alphabet == grid_letter)
 end
