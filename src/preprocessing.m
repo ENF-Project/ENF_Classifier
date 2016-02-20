@@ -50,7 +50,7 @@ N_WINDOW = 20000;
 N_OVERLAP = N_WINDOW/2;
 STEP_SIZE = .001;
 N_BIN = 500;
-LARGE_NUMBER = 1000000;
+LARGE_NUMBER = 100000;
 
 % TODO: REMOVE unused MAPs
 ranges = containers.Map('KeyType','int32','ValueType','any');
@@ -68,7 +68,7 @@ for i=1:6
     p_db(i) = 10*log10(p_temp(logical(f(i)),logical(t)));
     p_db_temp = p_db(i);    %   Temporary variable to index into a list element we've indexed into
     p_db(i) = p_db_temp(:);
-    h(i) = histfit(p_db(i),N_BIN, 'kernel');
+    h(i) = histfit(p_db(i), N_BIN, 'kernel');
     h_temp = h(i);
     x = h_temp(2).XData;
     y = h_temp(2).YData;
@@ -79,11 +79,11 @@ for i=1:6
     else
         min_thresh(i) = NaN;
     end
-    
+    clear p(i)
     %   Now find curves at each harmonic by removing the noise through recomputation of the spectrogram (thresholding)
     [~,f(i),t,p(i)] = spectrogram(signal,N_WINDOW,N_OVERLAP,ranges(i),Fs,'MinThreshold',min_thresh(i));
-    [m(i),~] = medfreq(p_temp(logical(f(i)),logical(t)),f(i)); %take median frequency over that range
-    
+    p_temp = p(i);  %   Re-assign temporary variable to index into a list element we've indexed into
+    [m(i),~] = medfreq(p_temp(logical(f(i)),logical(t)),f(i)); %take median frequency over that range    
 end
 
 if (highest_powered_curve == 1)
@@ -153,7 +153,7 @@ while (~isempty(find(isnan(combined))))
         end
         %try to get the missing portion of the curve with a new threshold
 
-        [~,f_subset,t_subset,p_subset] = spectrogram(signal,20000,10000,range_new,sample_rate, 'MinThreshold',min_thresh_new - decrement_min_thresh );
+        [~,f_subset,t_subset,p_subset] = spectrogram(signal,N_WINDOW,N_OVERLAP,range_new,Fs, 'MinThreshold',min_thresh_new - decrement_min_thresh );
         [m_subset,pm_subset] = medfreq(p_subset(logical(f_subset),logical(t_subset)),f_subset); %take median frequency over that range
         m_subset = m_subset((start_point):(end_point));
         
@@ -163,13 +163,14 @@ while (~isempty(find(isnan(combined))))
         %   lenient threshold
         for j=1:length(combined)
            if(j>= (start_point) && j<(end_point))
-               combined(j) = m_subset(j-(start_point-1))/output_curve;
+               combined(j) = m_subset(j-(start_point-1))/highest_powered_curve;
            end
         end
     end
     %   Decrement further the treshold if necessary
     decrement_min_thresh = decrement_min_thresh+1;
 end
-enf_signal = combined;
+enf_signal = struct('time',t, 'signal', combined);
+%enf_signal = combined;
 
 end
