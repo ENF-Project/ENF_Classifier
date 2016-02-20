@@ -1,6 +1,8 @@
 function feature_vector= extract_features(signal, grid_number)
 Fs = 1000;
-[mean_value, std_deviation] = mle(signal,'distribution','norm')
+mle_values = mle(signal.values,'distribution','norm')
+mean_value = mle_values(1);
+std_deviation = mle_values(2);
 median_value = nanmedian(signal.values);
 max_value = max(signal.values);
 min_value = min(signal.values);
