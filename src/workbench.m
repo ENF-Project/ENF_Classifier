@@ -2,8 +2,7 @@
 clear
 
 
-baseFolder = '../Grids/Grid_B/'; %Train_Grid_%s.wav
-grid_name = baseFolder(10:end-1)
+baseFolder = '../CVs/CV4/'; %Train_Grid_%s.wav
 
 % Check to make sure that folder actually exists.  Warn user if it doesn't.
 if ~isdir(baseFolder)
@@ -17,7 +16,7 @@ dirinfo(~[dirinfo.isdir]) = [];  %remove non-directories
 tf = ismember( {dirinfo.name}, {'.', '..'});
 dirinfo(tf) = [];  %remove current and parent directory.
 recordings_counter = 0; %Keep track of number of processed recordings
-output = zeros(length(dir(fullfile(baseFolder,dirinfo(1).name, '*.wav')))+length(dir(fullfile(baseFolder,dirinfo(2).name, '*.wav'))),7)
+features = zeros(length(dir(fullfile(baseFolder,dirinfo(1).name, '*.wav'))), 8);
 % output = zeros(length(dir(fullfile(baseFolder,dirinfo(1).name, '*.wav'))),7)
 
 for s = 1 : length(dirinfo)
@@ -32,9 +31,9 @@ for s = 1 : length(dirinfo)
         baseFileName = theFiles(k).name;
         fullFileName = fullfile(baseFolder,dirinfo(s).name, baseFileName);
         fprintf(1, 'Now reading %s\n', fullFileName);
-        [combined grid_number] = preprocessing(fullFileName);
+        [combined, grid_number] = preprocessing(fullFileName);
         features(k, :) = extract_features(combined, grid_number);
-
+        
         imageName = strcat(baseFileName, '.jpg');
         %         figure
         %         plot(combined.time,combined.values,'linewidth',1)
@@ -42,8 +41,7 @@ for s = 1 : length(dirinfo)
         %         ylabel('Frequency (Hz)')
         %         title(sprintf('Curve Combination for %s', baseFileName))
         %         hgexport(gcf, imageName, hgexport('factorystyle'), 'Format', 'jpeg');
-        %output(recordings_counter,:) = [median max_value min_value mle(1) mle(2) short peak_periodicity]
-
-        
-    end    
+        %output(recordings_counter,:) = [median max_value min_value mle(1) mle(2) short peak_periodicity]                
+    end
+    dlmwrite('cv4.csv',features,'-append');
 end

@@ -1,6 +1,5 @@
 function [enf_signal, grid_number] = preprocessing(recording)
-
-grid_letter = recording(15);
+grid_letter = recording(27);
 [signal, Fs]= audioread(recording);
 [~,~,fundfreq,~,~] = toi(signal);
 f_0 = fundfreq(2)*Fs;
