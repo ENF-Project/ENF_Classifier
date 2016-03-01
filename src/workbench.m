@@ -16,7 +16,7 @@ dirinfo(~[dirinfo.isdir]) = [];  %remove non-directories
 tf = ismember( {dirinfo.name}, {'.', '..'});
 dirinfo(tf) = [];  %remove current and parent directory.
 recordings_counter = 0; %Keep track of number of processed recordings
-features = zeros(length(dir(fullfile(baseFolder,dirinfo(1).name, '*.wav'))), 8);
+features = zeros(length(dir(fullfile(baseFolder,dirinfo(1).name, '*.wav'))), 11);
 % output = zeros(length(dir(fullfile(baseFolder,dirinfo(1).name, '*.wav'))),7)
 
 for s = 1 : length(dirinfo)
@@ -43,5 +43,5 @@ for s = 1 : length(dirinfo)
         %         hgexport(gcf, imageName, hgexport('factorystyle'), 'Format', 'jpeg');
         %output(recordings_counter,:) = [median max_value min_value mle(1) mle(2) short peak_periodicity]                
     end
-    dlmwrite('cv4.csv',features,'-append');
+    %dlmwrite('cv4.csv',features,'-append');
 end
