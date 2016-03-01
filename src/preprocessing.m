@@ -49,7 +49,7 @@ N_WINDOW = 20000;
 N_OVERLAP = N_WINDOW/2;
 STEP_SIZE = .001;
 N_BIN = 500;
-LARGE_NUMBER = 100000;
+% LARGE_NUMBER = 100000;
 
 % TODO: REMOVE unused MAPs
 ranges = containers.Map('KeyType','int32','ValueType','any');
@@ -71,7 +71,7 @@ for i=1:6
     h_temp = h(i);
     x = h_temp(2).XData;
     y = h_temp(2).YData;
-    y_inverse = LARGE_NUMBER - y;
+    y_inverse = -y;
     [pks,locs] = findpeaks(y_inverse,x);
     if ~isempty(locs)
         min_thresh(i) = locs(1);
