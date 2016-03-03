@@ -13,5 +13,5 @@ peak_periodicity = occurences/length(signal.time+1);
 ar2 = aryule(signal.values, 2);
 
 
-feature_vector = [median_value max_value min_value mean_value std_deviation short peak_periodicity ar2(1) ar2(2) ar2(3) grid_number]
+feature_vector = [median_value max_value min_value mean_value std_deviation short peak_periodicity ar2(2) ar2(3) grid_number]
 end

@@ -83,6 +83,7 @@ for i=1:6
     [~,f(i),t,p(i)] = spectrogram(signal,N_WINDOW,N_OVERLAP,ranges(i),Fs,'MinThreshold',min_thresh(i));
     p_temp = p(i);  %   Re-assign temporary variable to index into a list element we've indexed into
     [m(i),~] = medfreq(p_temp(logical(f(i)),logical(t)),f(i)); %take median frequency over that range    
+    close
 end
 
 if (highest_powered_curve == 1)
@@ -133,11 +134,11 @@ while (nan_count > 0)
         
     %   Combine original with extra curve parts obtained from more
     %   lenient threshold
-        for j=1:length(combined)
-           if(j>= (first_nan_index) && j<=(last_nan_index))
-               combined(j) = m_subset(j-(first_nan_index-1))/highest_powered_curve;
-           end
-        end
+    for j=1:length(combined)
+       if(j>= (first_nan_index) && j<=(last_nan_index))
+           combined(j) = m_subset(j-(first_nan_index-1))/highest_powered_curve;
+       end
+    end
     nan_count = length(find(isnan(combined)));
     %   Decrement further the treshold if necessary
     decrement_min_thresh = decrement_min_thresh+1;

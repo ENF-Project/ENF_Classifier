@@ -35,13 +35,13 @@ for s = 1 : length(dirinfo)
         features(k, :) = extract_features(combined, grid_number);
         
         imageName = strcat(baseFileName, '.jpg');
-        %         figure
-        %         plot(combined.time,combined.values,'linewidth',1)
-        %         xlabel('Time (s)')
-        %         ylabel('Frequency (Hz)')
-        %         title(sprintf('Curve Combination for %s', baseFileName))
-        %         hgexport(gcf, imageName, hgexport('factorystyle'), 'Format', 'jpeg');
-        %output(recordings_counter,:) = [median max_value min_value mle(1) mle(2) short peak_periodicity]                
+        figure
+        plot(combined.time,combined.values,'linewidth',1)
+        xlabel('Time (s)')
+        ylabel('Frequency (Hz)')
+        title(sprintf('Curve Combination for %s', baseFileName))
+        hgexport(gcf, imageName, hgexport('factorystyle'), 'Format', 'jpeg');
+        close
     end
-    %dlmwrite('cv4.csv',features,'-append');
+    dlmwrite('cv4.csv',features,'-append');
 end
