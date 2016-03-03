@@ -110,65 +110,39 @@ else
     min_thresh_new = min_thresh(6);
     combined = m(6)/6;
 end
-
 decrement_min_thresh = 1;
-while (~isempty(find(isnan(combined))))
-    %   NEED TO REFACTOR THIS
-    if(length(find(isnan(combined)))==1 && isnan(combined(length(combined))))
-        break;
+nan_count = length(find(isnan(combined)));
+while (nan_count > 0)
+    nan_indices = find(isnan(combined))
+    
+    %   Careful : Indexes into nan_indices
+    d = [0,diff(nan_indices)==1,0];
+    start_ind = strfind(d,[0 1])
+    end_ind = strfind(d,[1 0])
+    if ~isempty(start_ind)
+        first_nan_index = nan_indices(start_ind(1))
+        last_nan_index = nan_indices(end_ind(1))
+    else
+        first_nan_index = nan_indices(1)
+        last_nan_index = nan_indices(1)
     end
-    position = 1;
-    %while position < length(combined)
-    while 1
-        start_point = 0;
-        end_point = 0;
 
-        %   Determine start position of empty part
-        for i=position:length(combined)
-            if isnan(combined(i))
-                start_point = i;
-                break;
-            end
-        end
-
-        %   If went through entire curve and cannot reduce more then break
-        if (i ==length(combined))
-           break;
-        end
-
-        %   Determine end position of empty part
-        while isnan(combined(i)) && i~=length(combined)
-            end_point = i;
-            i=i+1;
-        end
-        position = i;
-
-        %   Add extra for coninuity
-        if(end_point ~= length(combined))
-           end_point = end_point +1;
-        end
-        if(start_point ~= 1)
-            start_point = start_point -1;
-        end
-        %try to get the missing portion of the curve with a new threshold
-
-        [~,f_subset,t_subset,p_subset] = spectrogram(signal,N_WINDOW,N_OVERLAP,range_new,Fs, 'MinThreshold',min_thresh_new - decrement_min_thresh );
-        [m_subset,pm_subset] = medfreq(p_subset(logical(f_subset),logical(t_subset)),f_subset); %take median frequency over that range
-        m_subset = m_subset((start_point):(end_point));
+    [~,f_subset,t_subset,p_subset] = spectrogram(signal,N_WINDOW,N_OVERLAP,range_new,Fs, 'MinThreshold',min_thresh_new - decrement_min_thresh );
+    [m_subset,pm_subset] = medfreq(p_subset(logical(f_subset),logical(t_subset)),f_subset); %take median frequency over that range
+    m_subset = m_subset((first_nan_index):(last_nan_index));
         
-        %lenght_m_sub =length(m_subset)
-        %length_comb = length(combined)
-        %   Combine original with extra curve parts obtained from more
-        %   lenient threshold
+    %   Combine original with extra curve parts obtained from more
+    %   lenient threshold
         for j=1:length(combined)
-           if(j>= (start_point) && j<(end_point))
-               combined(j) = m_subset(j-(start_point-1))/highest_powered_curve;
+           if(j>= (first_nan_index) && j<=(last_nan_index))
+               combined(j) = m_subset(j-(first_nan_index-1))/highest_powered_curve;
            end
         end
-    end
+    nan_count = length(find(isnan(combined)));
     %   Decrement further the treshold if necessary
     decrement_min_thresh = decrement_min_thresh+1;
 end
+
 enf_signal = struct('time',t, 'values', combined);
 %enf_signal = combined;
 
