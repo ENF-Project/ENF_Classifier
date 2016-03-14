@@ -1,10 +1,10 @@
-features_1 = csvread('CV1_trimmed.csv');
-features_2 = csvread('CV2_trimmed.csv');
-features_3 = csvread('CV3_trimmed.csv');
-features_4 = csvread('CV4_trimmed.csv');
+features_1 = csvread('CV1.csv');
+features_2 = csvread('CV2.csv');
+features_3 = csvread('CV3.csv');
+features_4 = csvread('CV4.csv');
 
-training_features = [features_3;features_3;features_3];
-validation_features = features_3;
+training_features = [features_1;features_2;features_3];
+validation_features = features_4;
 
 B = train_model(training_features);
 
