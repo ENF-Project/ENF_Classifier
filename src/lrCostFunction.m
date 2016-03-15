@@ -41,7 +41,8 @@ temp(1) = 0;
 
 h = sigmoid(X*theta);
 J = (1/m)*sum(-(y.')*log(h)-(1-y.')*log(1-h));
-tempJ = sum((lambda/(2*m)) * (temp.*temp));    %Term for regularization
+% tempJ = sum((lambda/(2*m)) * (temp.*temp));    %Term for L2 regularization
+tempJ = sum((lambda/(2*m)) * abs(temp));    %Term for L1 regularization
 J = J + tempJ;
 
 grad = (1/m) * X.' * (h-y);
