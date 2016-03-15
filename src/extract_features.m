@@ -10,7 +10,8 @@ min_value = min(signal.values);
 short = mean(diff(lcsh))/Fs;
 occurences = double(length(lcsh));
 peak_periodicity = occurences/length(signal.time+1);
-ar2 = aryule(signal.values, 2);
+[ar_coeff, ar_e] = aryule(signal.values, 2);
+% [l_coeff, l_e] = lpc(signal.values,2);
 lev = 4;
 wname = 'sym2';
 [c,l] = wavedec(signal.values,lev,wname);
@@ -18,6 +19,8 @@ wname = 'sym2';
 mean_approximation_coeff= mean(cA);
 range_value= max_value - min_value;
 
+%   =======================================================
+%   Find closest fundamental frequency candidate (50 or 60)
 mod_50 = mod(mean_value,50);
 mod_60 = mod(mean_value,60);
 
@@ -41,20 +44,12 @@ if(var_50 < var_60)
 else
     f_n = 60
 end
-
-
+%   ====================================================
 Hzerocross = dsp.ZeroCrossingDetector;
 crossings = step(Hzerocross,(signal.values-f_n)');
 %hdydanl = dsp.DyadicAnalysisFilterBank('Filter','Haar','NumLevels',1);
- 
-% The filter coefficients correspond to a 'haar' wavelet.
- %hdydanl.CustomLowpassFilter = [1/sqrt(2) 1/sqrt(2)];
- %hdydanl.CustomHighpassFilter = [-1/sqrt(2) 1/sqrt(2)];
- %hdydsyn = dsp.DyadicSynthesisFilterBank;
- %hdydsyn.CustomLowpassFilter = [1/sqrt(2) 1/sqrt(2)];
- %hdydsyn.CustomHighpassFilter = [1/sqrt(2) -1/sqrt(2)];
- 
- %C = step(hdydanl, signal.values);
+signal_integral = trapz(signal.time,signal.values-f_n)
 
-feature_vector = [median_value max_value min_value mean_value std_deviation short peak_periodicity ar2(2) ar2(3) range_value grid_number]
+
+feature_vector = [median_value min_value max_value range_value mean_value std_deviation short peak_periodicity ar_coeff(2) ar_coeff(3) ar_e crossings signal_integral grid_number]
 end
