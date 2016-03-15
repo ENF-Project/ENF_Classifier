@@ -43,5 +43,5 @@ for s = 1 : length(dirinfo)
         hgexport(gcf, imageName, hgexport('factorystyle'), 'Format', 'jpeg');
         close
     end
-    dlmwrite('cv4.csv',features,'-append');
+    dlmwrite('cv4_wavelet.csv',features,'-append');
 end
