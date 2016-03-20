@@ -12,15 +12,15 @@ occurences = double(length(lcsh));
 peak_periodicity = occurences/length(signal.time+1);
 [ar_coeff, ar_e] = aryule(signal.values, 2);
 % [l_coeff, l_e] = lpc(signal.values,2);
-lev = 4;
-wname = 'sym2';
-[c,l] = wavedec(signal.values,lev,wname);
-[cA,cD] = dwt(signal.values,'sym2');
-mean_approximation_coeff= mean(cA);
+% lev = 4;
+% wname = 'sym2';
+% [c,l] = wavedec(signal.values,lev,wname);
+% [cA,cD] = dwt(signal.values,'sym2');
+% mean_approximation_coeff = mean(cA);
 range_value= max_value - min_value;
 
-%   =======================================================
-%   Find closest fundamental frequency candidate (50 or 60)
+%    =======================================================
+%    Find closest fundamental frequency candidate (50 or 60)
 mod_50 = mod(mean_value,50);
 mod_60 = mod(mean_value,60);
 
@@ -44,9 +44,9 @@ if(var_50 < var_60)
 else
     f_n = 60
 end
-%   ====================================================
+% %   ====================================================
 Hzerocross = dsp.ZeroCrossingDetector;
-crossings = step(Hzerocross,(signal.values-f_n)');
+crossings = double(step(Hzerocross,(signal.values-f_n)'));
 %hdydanl = dsp.DyadicAnalysisFilterBank('Filter','Haar','NumLevels',1);
 signal_integral = trapz(signal.time,signal.values-f_n)
 

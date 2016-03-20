@@ -2,7 +2,7 @@
 clear
 
 
-baseFolder = '../CVs/CV4/'; %Train_Grid_%s.wav
+baseFolder = '../CVs/CV2/'; %Train_Grid_%s.wav
 
 % Check to make sure that folder actually exists.  Warn user if it doesn't.
 if ~isdir(baseFolder)
@@ -16,7 +16,7 @@ dirinfo(~[dirinfo.isdir]) = [];  %remove non-directories
 tf = ismember( {dirinfo.name}, {'.', '..'});
 dirinfo(tf) = [];  %remove current and parent directory.
 recordings_counter = 0; %Keep track of number of processed recordings
-features = zeros(length(dir(fullfile(baseFolder,dirinfo(1).name, '*.wav'))), 11);
+features = zeros(length(dir(fullfile(baseFolder,dirinfo(1).name, '*.wav'))), 14);
 % output = zeros(length(dir(fullfile(baseFolder,dirinfo(1).name, '*.wav'))),7)
 
 for s = 1 : length(dirinfo)
@@ -43,5 +43,5 @@ for s = 1 : length(dirinfo)
         hgexport(gcf, imageName, hgexport('factorystyle'), 'Format', 'jpeg');
         close
     end
-    dlmwrite('cv4_wavelet.csv',features,'-append');
+    dlmwrite('cv2_15_03_16_completefeatures.csv',features,'-append');
 end
