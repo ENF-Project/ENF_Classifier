@@ -17,10 +17,10 @@ num_labels = 9;           % 9 labels, from A to I
 fprintf('Loading and Visualizing Data ...\n')
 
 % load('ex3data1.mat'); % training data stored in arrays X, y
-features_1 = csvread('CV1_15_03_16_completefeatures.csv');
-features_2 = csvread('CV2_15_03_16_completefeatures.csv');
-features_3 = csvread('CV3_15_03_16_completefeatures.csv');
-features_4 = csvread('CV4_15_03_16_completefeatures.csv');
+features_1 = csvread('CV1_completefeatures_10000_window.csv');
+features_2 = csvread('CV2_completefeatures_10000_window.csv');
+features_3 = csvread('CV3_completefeatures_10000_window.csv');
+features_4 = csvread('CV4_completefeatures_10000_window.csv');
 
 % training_features = [features_1;features_2;features_4];
 % validation_features = features_3;
@@ -41,6 +41,14 @@ num_features = num_features(2);
 % training_features(:,1:num_features - 1) = zscore(training_features(:,1:num_features - 1));
 % validation_features(:,1:num_features - 1) = zscore(validation_features(:,1:num_features - 1));
 
+colwise_min = min(training_features(:,1:num_features-1));
+colwise_max = max(training_features(:,1:num_features-1));
+
+
+% for i = 1 : num_samples
+%     training_features(i, 1:num_features-1) = ((training_features(i, 1:num_features-1)-colwise_min)/(colwise_max-colwise_min));
+% end
+
 X_training = training_features(:,1:num_features - 1);
 y_training = training_features(:,num_features);
 
@@ -60,3 +68,4 @@ lambda = 0;
 pred = predictOneVsAll(all_theta, X_validation);
 
 fprintf('\nTraining Set Accuracy: %f\n', mean(double(pred == y_validation)) * 100);
+C = confusionmat(y_validation, pred);

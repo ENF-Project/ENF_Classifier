@@ -7,9 +7,13 @@ median_value = nanmedian(signal.values);
 max_value = max(signal.values);
 min_value = min(signal.values);
 [pksh,lcsh] = findpeaks(signal.values);
-short = mean(diff(lcsh))/Fs;
+avg_distance_peaks = mean(diff(lcsh))/Fs;
 occurences = double(length(lcsh));
-peak_periodicity = occurences/length(signal.time+1);
+peak_periodicity = occurences/length(signal.time);    %Was /length(signal.time+1)
+
+fourier_values = fft(signal.values,2);
+
+
 [ar_coeff, ar_e] = aryule(signal.values, 2);
 % [l_coeff, l_e] = lpc(signal.values,2);
 % lev = 4;
@@ -46,10 +50,10 @@ else
 end
 % %   ====================================================
 Hzerocross = dsp.ZeroCrossingDetector;
-crossings = double(step(Hzerocross,(signal.values-f_n)'));
+crossings = (double(step(Hzerocross,(signal.values-f_n)')))/length(signal.time);
 %hdydanl = dsp.DyadicAnalysisFilterBank('Filter','Haar','NumLevels',1);
-signal_integral = trapz(signal.time,signal.values-f_n)
+signal_integral = (trapz(signal.time,signal.values-f_n))/length(signal.time)
 
 
-feature_vector = [median_value min_value max_value range_value mean_value std_deviation short peak_periodicity ar_coeff(2) ar_coeff(3) ar_e crossings signal_integral grid_number]
+feature_vector = [median_value min_value max_value range_value mean_value std_deviation avg_distance_peaks peak_periodicity ar_coeff(2) ar_coeff(3) ar_e crossings signal_integral grid_number]
 end

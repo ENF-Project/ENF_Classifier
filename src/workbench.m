@@ -2,7 +2,7 @@
 clear
 
 
-baseFolder = '../CVs/CV2/'; %Train_Grid_%s.wav
+baseFolder = '../CVs/CV1/'; %Train_Grid_%s.wav
 
 % Check to make sure that folder actually exists.  Warn user if it doesn't.
 if ~isdir(baseFolder)
@@ -40,8 +40,8 @@ for s = 1 : length(dirinfo)
         xlabel('Time (s)')
         ylabel('Frequency (Hz)')
         title(sprintf('Curve Combination for %s', baseFileName))
-        hgexport(gcf, imageName, hgexport('factorystyle'), 'Format', 'jpeg');
+%         hgexport(gcf, imageName, hgexport('factorystyle'), 'Format', 'jpeg');
         close
     end
-    dlmwrite('cv2_15_03_16_completefeatures.csv',features,'-append');
+%     dlmwrite('cv2_15_03_16_completefeatures.csv',features,'-append');
 end

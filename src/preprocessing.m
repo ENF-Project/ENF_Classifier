@@ -45,7 +45,7 @@ end
 %   Find proper threshold
 %   Repeat at each harmonic
 %   Used Map containers to avoid issues with different sizes
-N_WINDOW = 20000;
+N_WINDOW = 9250;
 N_OVERLAP = N_WINDOW/2;
 STEP_SIZE = .001;
 N_BIN = 500;
@@ -113,6 +113,7 @@ else
 end
 decrement_min_thresh = 1;
 nan_count = length(find(isnan(combined)));
+
 while (nan_count > 0)
     nan_indices = find(isnan(combined))
     
@@ -143,6 +144,21 @@ while (nan_count > 0)
     %   Decrement further the treshold if necessary
     decrement_min_thresh = decrement_min_thresh+1;
 end
+
+% Now remove points seen as noise
+%combined(combined>(mean(combined)+std(combined))||combined(combined<(mean(combined)-std(combined))=NaN;
+for i=1:length(combined)
+    if (i>1 && i< length(combined))
+        if(combined(i)>combined(i-1)+nanstd(combined) && combined(i)>combined(i+1)+nanstd(combined))
+            combined(i) = NaN
+        elseif(combined(i)<combined(i-1)-nanstd(combined) && combined(i)<combined(i+1)-nanstd(combined))
+            combined(i) = NaN
+        end
+    end
+end
+
+% New curve filling using inpaint_nans
+combined = inpaint_nans(combined);
 
 enf_signal = struct('time',t, 'values', combined);
 %enf_signal = combined;
