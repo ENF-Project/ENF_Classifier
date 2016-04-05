@@ -17,10 +17,10 @@ num_labels = 9;           % 9 labels, from A to I
 fprintf('Loading and Visualizing Data ...\n')
 
 % load('ex3data1.mat'); % training data stored in arrays X, y
-features_1 = csvread('CV1_completefeatures_10000_window.csv');
-features_2 = csvread('CV2_completefeatures_10000_window.csv');
-features_3 = csvread('CV3_completefeatures_10000_window.csv');
-features_4 = csvread('CV4_completefeatures_10000_window.csv');
+features_1 = csvread('CV1_curvature_9250_haar.csv');
+features_2 = csvread('CV2_curvature_9250_haar.csv');
+features_3 = csvread('CV3_curvature_9250_haar.csv');
+features_4 = csvread('CV4_curvature_9250_haar.csv');
 
 % training_features = [features_1;features_2;features_4];
 % validation_features = features_3;
@@ -28,21 +28,23 @@ features_4 = csvread('CV4_completefeatures_10000_window.csv');
 % training_features = [features_1;features_2;features_3];
 % validation_features = features_4;
 % 
-training_features = [features_2;features_3;features_4];
-validation_features = features_1;
+% training_features = [features_2;features_3;features_4];
+% validation_features = features_1;
 % 
-% training_features = [features_3;features_4;features_1];
-% validation_features = features_2;
+ training_features = [features_3;features_4;features_1];
+ validation_features = features_2;
 
 num_features = size(training_features);
 num_samples = num_features(1);
 num_features = num_features(2);
 
+% training_features(:,1:num_features - 3) = zscore(training_features(:,1:num_features - 3));
+% validation_features(:,1:num_features - 3) = zscore(validation_features(:,1:num_features - 3));
+
 % training_features(:,1:num_features - 1) = zscore(training_features(:,1:num_features - 1));
 % validation_features(:,1:num_features - 1) = zscore(validation_features(:,1:num_features - 1));
-
-colwise_min = min(training_features(:,1:num_features-1));
-colwise_max = max(training_features(:,1:num_features-1));
+% colwise_min = min(training_features(:,1:num_features-1));
+% colwise_max = max(training_features(:,1:num_features-1));
 
 
 % for i = 1 : num_samples
@@ -61,7 +63,7 @@ m = size(X_training, 1); %Remove, = num_training_samples
 
 fprintf('\nTraining One-vs-All Logistic Regression...\n')
 
-lambda = 0;   
+lambda = 0.5;   
 [all_theta] = oneVsAll(X_training, y_training, num_labels, lambda);
 
 %% ================ Predict ================

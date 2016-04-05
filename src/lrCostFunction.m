@@ -36,17 +36,14 @@ grad = zeros(size(theta));
 %           grad = grad + YOUR_CODE_HERE (using the temp variable)
 %
 
-temp = theta;
-temp(1) = 0;
+sig = sigmoid(X * theta);
+cost = -y .* log(sig) - (1 - y) .* log(1 - sig);
+thetaNoZero = [ [ 0 ]; theta([2:length(theta)]) ];
+% J = (1 / m) * sum(cost) + (lambda / (2 * m)) * sum(thetaNoZero .^ 2);   %L2
+J = (1 / m) * sum(cost) + (lambda / (2 * m)) * sum(abs(thetaNoZero));   %L1
 
-h = sigmoid(X*theta);
-J = (1/m)*sum(-(y.')*log(h)-(1-y.')*log(1-h));
-% tempJ = sum((lambda/(2*m)) * (temp.*temp));    %Term for L2 regularization
-tempJ = sum((lambda/(2*m)) * abs(temp));    %Term for L1 regularization
-J = J + tempJ;
+grad = (1 / m) .* (X' * (sig - y)) + (lambda / m) * thetaNoZero;
 
-grad = (1/m) * X.' * (h-y);
-grad = grad + (lambda/m)*temp;
 
 % =============================================================
 

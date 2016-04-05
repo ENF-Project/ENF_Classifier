@@ -11,10 +11,14 @@ avg_distance_peaks = mean(diff(lcsh))/Fs;
 occurences = double(length(lcsh));
 peak_periodicity = occurences/length(signal.time);    %Was /length(signal.time+1)
 
-fourier_values = fft(signal.values,2);
+% fourier_values = fft(signal.values,2);
+vertices = [signal.values;signal.time]
+% normals = LineNormals2D(vertices);
+% vertices = vertices
+curvature = LineCurvature2D(vertices');
+curvature = 10000000*var(curvature);
 
 
-[ar_coeff, ar_e] = aryule(signal.values, 2);
 % [l_coeff, l_e] = lpc(signal.values,2);
 % lev = 4;
 % wname = 'sym2';
@@ -54,6 +58,16 @@ crossings = (double(step(Hzerocross,(signal.values-f_n)')))/length(signal.time);
 %hdydanl = dsp.DyadicAnalysisFilterBank('Filter','Haar','NumLevels',1);
 signal_integral = (trapz(signal.time,signal.values-f_n))/length(signal.time)
 
+[ar_coeff, ar_e] = aryule(signal.values-f_n, 2);
 
-feature_vector = [median_value min_value max_value range_value mean_value std_deviation avg_distance_peaks peak_periodicity ar_coeff(2) ar_coeff(3) ar_e crossings signal_integral grid_number]
+% Dummy coded variables
+is_50 = 0;
+is_60 = 0;
+if(f_n == 60)
+    is_60 = 1.0;
+else 
+    is_50 = 1.0;
+end
+
+feature_vector = [median_value min_value max_value range_value mean_value std_deviation avg_distance_peaks peak_periodicity ar_coeff(2) ar_coeff(3) ar_e crossings signal_integral curvature is_50 is_60 grid_number]
 end
